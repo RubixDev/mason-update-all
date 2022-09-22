@@ -1,6 +1,7 @@
 # mason-update-all
 Easily update all [Mason](https://github.com/williamboman/mason.nvim) packages with one command.
 
+## Table of Contents
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Packer](#packer)
