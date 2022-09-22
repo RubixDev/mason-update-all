@@ -9,6 +9,7 @@ Easily update all [Mason](https://github.com/williamboman/mason.nvim) packages w
 * [Setup](#setup)
 * [Commands](#commands)
 * [Events](#events)
+* [Updating from CLI](#updating-from-cli)
 
 ## Requirements
 - [`mason.nvim`](https://github.com/williamboman/mason.nvim)
@@ -48,4 +49,15 @@ or in VimScript:
 
 ```vim
 autocmd User MasonUpdateAllComplete echo 'mason-update-all has finished'
+```
+
+## Updating from CLI
+Using the provided vim command and user event, it is possible to update the Mason packages from the command line or shell scripts.
+
+```bash
+# Update Packer plugins
+nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+# Update Mason packages
+nvim --headless -c 'autocmd User MasonUpdateAllComplete quitall' -c 'MasonUpdateAll'
 ```
