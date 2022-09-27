@@ -2,6 +2,23 @@ local registry = require('mason-registry')
 
 local M = {}
 
+local function check_done(running_count, any_update)
+    if running_count == 0 then
+        if any_update then
+            print('[mason-update-all] Finished updating all packages')
+        else
+            print('[mason-update-all] Nothing to update')
+        end
+
+        -- Trigger autocmd
+        vim.schedule(function()
+            vim.api.nvim_exec_autocmds('User', {
+                pattern = 'MasonUpdateAllComplete',
+            })
+        end)
+    end
+end
+
 function M.update_all()
     local any_update = false -- Whether any package was updated
     local running_count = 0 -- Currently running jobs
@@ -25,26 +42,16 @@ function M.update_all()
                 pkg:install():on('closed', function()
                     running_count = running_count - 1
                     print(('[mason-update-all] Updated %s to %s'):format(pkg.name, version.latest_version))
+
+                    -- Done
+                    check_done(running_count, any_update)
                 end)
             else
                 running_count = running_count - 1
             end
 
             -- Done
-            if running_count == 0 then
-                if any_update then
-                    print('[mason-update-all] Finished updating all packages')
-                else
-                    print('[mason-update-all] Nothing to update')
-                end
-
-                -- Trigger autocmd
-                vim.schedule(function()
-                    vim.api.nvim_exec_autocmds('User', {
-                        pattern = 'MasonUpdateAllComplete',
-                    })
-                end)
-            end
+            check_done(running_count, any_update)
         end)
     end
 end
