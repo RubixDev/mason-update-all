@@ -31,10 +31,11 @@ require('mason-update-all').setup()
 ```
 
 ## Commands
-- `:MasonUpdateAll` — update all installed Mason packages
+- `:MasonUpdateAll` — update all installed Mason packages in asynchronous mode. Mason installation runs in background.
+- `:MasonUpdateAllSync` — update all installed Mason packages in synchronous mode. Will run installation of all packages asynchronously but will not end until all of them finish installing. Useful for `--headless` run.
 
 ## Events
-Upon completion of all updates the user event `MasonUpdateAllComplete` will be emitted. You can use it like so:
+Upon completion of all updates the user event `MasonUpdateAllComplete` will be emitted. This will work only with `MasonUpdateAllSync`. You can use it like so:
 
 ```lua
 vim.api.nvim_create_autocmd('User', {
@@ -58,6 +59,6 @@ Using the provided vim command and user event, it is possible to update the Maso
 # Update Packer plugins
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
-# Update Mason packages
-nvim --headless -c 'autocmd User MasonUpdateAllComplete quitall' -c 'MasonUpdateAll'
+# Update Mason packages synchronously
+nvim --headless -c 'autocmd User MasonUpdateAllComplete quitall' -c 'MasonUpdateAllSync'
 ```
