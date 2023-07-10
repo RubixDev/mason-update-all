@@ -22,6 +22,7 @@ end
 function M.update_all()
     local any_update = false -- Whether any package was updated
     local running_count = 0 -- Currently running jobs
+    local done_launching_jobs = false
 
     print('[mason-update-all] Fetching updates')
     -- Update the registry
@@ -65,9 +66,17 @@ function M.update_all()
                 end
 
                 -- Done
-                check_done(running_count, any_update)
+                if done_launching_jobs then
+                    check_done(running_count, any_update)
+                end
             end)
         end
+
+        -- If all jobs are immediately done, do the checking here
+        if running_count == 0 then
+            check_done(running_count, any_update)
+        end
+        done_launching_jobs = true
     end)
 end
 
