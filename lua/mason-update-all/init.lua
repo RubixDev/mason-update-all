@@ -2,12 +2,45 @@ local registry = require('mason-registry')
 
 local M = {}
 
+local messages = vim.log.levels
+
+local notification_options = {
+  title = "mason-update-all"
+}
+
+local notifiers = {
+  [messages.ERROR] = function(message)
+    vim.notify(
+      string.format(
+        '[mason-update-all] Error during update: %s',
+        message
+      ),
+      messages.ERROR,
+      notification_options
+    )
+  end,
+  [messages.INFO] = function(message)
+    vim.notify(
+      string.format(
+        '[mason-update-all] %s',
+        message
+      ),
+      vim.log.levels.INFO,
+      notification_options
+    )
+  end
+}
+
+local function notify(message, level)
+  notifiers[level](message)
+end
+
 local function check_done(running_count, any_update)
     if running_count == 0 then
         if any_update then
-            print('[mason-update-all] Finished updating all packages')
+            notify('Finished updating all packages', messages.INFO)
         else
-            print('[mason-update-all] Nothing to update')
+            notify('Nothing to update', messages.INFO)
         end
 
         -- Trigger autocmd
@@ -24,11 +57,11 @@ function M.update_all()
     local running_count = 0 -- Currently running jobs
     local done_launching_jobs = false
 
-    print('[mason-update-all] Fetching updates')
+    notify('Fetching updates', messages.INFO)
     -- Update the registry
     registry.update(function(success, err)
         if not success then
-            print('[mason-update-all] Error fetching updates: ' .. err)
+            notify(err, messages.ERROR)
 
             -- Trigger autocmd
             vim.schedule(function()
@@ -47,16 +80,17 @@ function M.update_all()
             pkg:check_new_version(function(new_available, version)
                 if new_available then
                     any_update = true
-                    print(
-                        ('[mason-update-all] Updating %s from %s to %s'):format(
-                            pkg.name,
-                            version.current_version,
-                            version.latest_version
-                        )
+                    local update_message = ('Updating %s from %s to %s'):format(
+                        pkg.name,
+                        version.current_version,
+                        version.latest_version
                     )
+                    notify(update_message, messages.INFO)
+
                     pkg:install():on('closed', function()
                         running_count = running_count - 1
-                        print(('[mason-update-all] Updated %s to %s'):format(pkg.name, version.latest_version))
+                        local updated_message = ('Updated %s to %s'):format(pkg.name, version.latest_version)
+                        notify(updated_message, messages.INFO)
 
                         -- Done
                         check_done(running_count, any_update)
