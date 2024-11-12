@@ -2,11 +2,23 @@ local registry = require('mason-registry')
 
 local M = {}
 
-local function check_done(running_count, any_update)
+---@class MasonUpdateAllSettings
+local defaultSettings = {
+    -- If a notification should be shown if there are no updates.
+    ---@type boolean
+    showNoUpdatesNotification = true,
+}
+
+M.current = defaultSettings
+
+---@param running_count number
+---@param any_update boolean
+---@param showNoUpdatesNotification boolean
+local function check_done(running_count, any_update, showNoUpdatesNotification)
     if running_count == 0 then
         if any_update then
             print('[mason-update-all] Finished updating all packages')
-        else
+        elseif showNoUpdatesNotification then
             print('[mason-update-all] Nothing to update')
         end
 
@@ -59,7 +71,7 @@ function M.update_all()
                         print(('[mason-update-all] Updated %s to %s'):format(pkg.name, version.latest_version))
 
                         -- Done
-                        check_done(running_count, any_update)
+                        check_done(running_count, any_update, M.current.showNoUpdatesNotification)
                     end)
                 else
                     running_count = running_count - 1
@@ -67,20 +79,22 @@ function M.update_all()
 
                 -- Done
                 if done_launching_jobs then
-                    check_done(running_count, any_update)
+                    check_done(running_count, any_update, M.current.showNoUpdatesNotification)
                 end
             end)
         end
 
         -- If all jobs are immediately done, do the checking here
         if running_count == 0 then
-            check_done(running_count, any_update)
+            check_done(running_count, any_update, M.current.showNoUpdatesNotification)
         end
         done_launching_jobs = true
     end)
 end
 
-function M.setup()
+---@param opts MasonUpdateAllSettings
+function M.setup(opts)
+    M.current = vim.tbl_deep_extend('force', M.current, opts)
     vim.api.nvim_create_user_command('MasonUpdateAll', M.update_all, {})
 end
 
