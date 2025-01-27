@@ -2,12 +2,26 @@ local registry = require('mason-registry')
 
 local M = {}
 
+-- Detect whether we're running in headless mode
+local function is_headless()
+    return #vim.api.nvim_list_uis() == 0
+end
+
+-- Unified print function that works in both headless and interactive mode
+local function print_message(message)
+    if is_headless() then
+        io.stdout:write(message .. '\n')
+    else
+        print(message)
+    end
+end
+
 local function check_done(running_count, any_update)
     if running_count == 0 then
         if any_update then
-            print('[mason-update-all] Finished updating all packages')
+            print_message('[mason-update-all] Finished updating all packages')
         else
-            print('[mason-update-all] Nothing to update')
+            print_message('[mason-update-all] Nothing to update')
         end
 
         -- Trigger autocmd
@@ -24,11 +38,12 @@ function M.update_all()
     local running_count = 0 -- Currently running jobs
     local done_launching_jobs = false
 
-    print('[mason-update-all] Fetching updates')
+    print_message('[mason-update-all] Fetching updates')
+
     -- Update the registry
     registry.update(function(success, err)
         if not success then
-            print('[mason-update-all] Error fetching updates: ' .. err)
+            print_message('[mason-update-all] Error fetching updates: ' .. err)
 
             -- Trigger autocmd
             vim.schedule(function()
@@ -47,7 +62,7 @@ function M.update_all()
             pkg:check_new_version(function(new_available, version)
                 if new_available then
                     any_update = true
-                    print(
+                    print_message(
                         ('[mason-update-all] Updating %s from %s to %s'):format(
                             pkg.name,
                             version.current_version,
@@ -56,7 +71,7 @@ function M.update_all()
                     )
                     pkg:install():on('closed', function()
                         running_count = running_count - 1
-                        print(('[mason-update-all] Updated %s to %s'):format(pkg.name, version.latest_version))
+                        print_message(('[mason-update-all] Updated %s to %s'):format(pkg.name, version.latest_version))
 
                         -- Done
                         check_done(running_count, any_update)
