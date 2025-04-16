@@ -2,17 +2,15 @@ local registry = require('mason-registry')
 
 local M = {}
 
--- Detect whether we're running in headless mode
-local function is_headless()
-    return #vim.api.nvim_list_uis() == 0
-end
+-- Cache headless mode at startup to avoid unsafe calls inside event loop
+local IS_HEADLESS = #vim.api.nvim_list_uis() == 0
 
 -- Smart message printer:
 -- - uses io.stdout in headless mode for clean CLI output
 -- - uses vim.notify in interactive mode if available
 -- - falls back to print() otherwise
 local function print_message(message)
-    if is_headless() then
+    if IS_HEADLESS then
         io.stdout:write('[mason-update-all]' .. message .. '\n')
     elseif vim.notify then
         vim.notify(message, vim.log.levels.INFO, { title = 'Mason Update All' })
