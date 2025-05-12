@@ -62,28 +62,28 @@ function M.update_all()
             running_count = running_count + 1
 
             -- Fetch for new version
-            pkg:check_new_version(function(new_available, version)
-                if new_available then
-                    any_update = true
-                    print_message(
-                        ('Updating %s from %s to %s'):format(pkg.name, version.current_version, version.latest_version)
-                    )
-                    pkg:install():on('closed', function()
-                        running_count = running_count - 1
-                        print_message(('Updated %s to %s'):format(pkg.name, version.latest_version))
-
-                        -- Done
-                        check_done(running_count, any_update)
-                    end)
-                else
+            local latest_version = pkg:get_latest_version()
+            local current_version = pkg:get_installed_version()
+            if current_version ~= latest_version then
+                any_update = true
+                print_message(
+                    ('Updating %s from %s to %s'):format(pkg.name, current_version, latest_version)
+                )
+                pkg:install():on('closed', function()
                     running_count = running_count - 1
-                end
+                    print_message(('Updated %s to %s'):format(pkg.name, latest_version))
 
-                -- Done
-                if done_launching_jobs then
+                    -- Done
                     check_done(running_count, any_update)
-                end
-            end)
+                end)
+            else
+                running_count = running_count - 1
+            end
+
+            -- Done
+            if done_launching_jobs then
+                check_done(running_count, any_update)
+            end
         end
 
         -- If all jobs are immediately done, do the checking here
