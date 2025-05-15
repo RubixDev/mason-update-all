@@ -33,10 +33,12 @@ Plug 'RubixDev/mason-update-all'
 
 ## Setup
 
+Call the setup function with optional settings overrides. The default values are shown below.
+
 ```lua
 require('mason-update-all').setup({
-  -- If a notification should be shown if there are no updates.
-  showNoUpdatesNotification = true,
+  -- Whether a notification should be shown when there are no updates.
+  show_no_updates_notification = true,
 })
 ```
 

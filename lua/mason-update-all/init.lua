@@ -3,13 +3,13 @@ local registry = require('mason-registry')
 local M = {}
 
 ---@class MasonUpdateAllSettings
-local defaultSettings = {
-    -- If a notification should be shown if there are no updates.
+local default_settings = {
+    -- Whether a notification should be shown when there are no updates.
     ---@type boolean
-    showNoUpdatesNotification = true,
+    show_no_updates_notification = true,
 }
 
-M.current = defaultSettings
+M.current = default_settings
 
 -- Cache headless mode at startup to avoid unsafe calls inside event loop
 local IS_HEADLESS = #vim.api.nvim_list_uis() == 0
@@ -30,12 +30,12 @@ end
 
 ---@param running_count number
 ---@param any_update boolean
----@param showNoUpdatesNotification boolean
-local function check_done(running_count, any_update, showNoUpdatesNotification)
+---@param show_no_updates_notification boolean
+local function check_done(running_count, any_update, show_no_updates_notification)
     if running_count == 0 then
         if any_update then
             print_message('Finished updating all packages')
-        elseif showNoUpdatesNotification then
+        elseif show_no_updates_notification then
             print_message('Nothing to update')
         end
 
@@ -86,7 +86,7 @@ function M.update_all()
                     print_message(('Updated %s to %s'):format(pkg.name, latest_version))
 
                     -- Done
-                    check_done(running_count, any_update, M.current.showNoUpdatesNotification)
+                    check_done(running_count, any_update, M.current.show_no_updates_notification)
                 end)
             else
                 running_count = running_count - 1
@@ -94,13 +94,13 @@ function M.update_all()
 
             -- Done
             if done_launching_jobs then
-                check_done(running_count, any_update, M.current.showNoUpdatesNotification)
+                check_done(running_count, any_update, M.current.show_no_updates_notification)
             end
         end
 
         -- If all jobs are immediately done, do the checking here
         if running_count == 0 then
-            check_done(running_count, any_update, M.current.showNoUpdatesNotification)
+            check_done(running_count, any_update, M.current.show_no_updates_notification)
         end
         done_launching_jobs = true
     end)
