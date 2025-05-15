@@ -1,39 +1,53 @@
 # mason-update-all
+
 Easily update all [Mason](https://github.com/williamboman/mason.nvim) packages with one command.
 
 ## Table of Contents
-* [Requirements](#requirements)
-* [Installation](#installation)
-  * [Packer](#packer)
-  * [vim-plug](#vim-plug)
-* [Setup](#setup)
-* [Commands](#commands)
-* [Events](#events)
-* [Updating from CLI](#updating-from-cli)
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Packer](#packer)
+  - [vim-plug](#vim-plug)
+- [Setup](#setup)
+- [Commands](#commands)
+- [Events](#events)
+- [Updating from CLI](#updating-from-cli)
 
 ## Requirements
+
 - [`mason.nvim`](https://github.com/williamboman/mason.nvim)
 
 ## Installation
+
 ### [Packer](https://github.com/wbthomason/packer.nvim)
+
 ```lua
 use { 'RubixDev/mason-update-all' }
 ```
 
 ### [vim-plug](https://github.com/junegunn/vim-plug)
+
 ```vim
 Plug 'RubixDev/mason-update-all'
 ```
 
 ## Setup
+
+Call the setup function with optional settings overrides. The default values are shown below.
+
 ```lua
-require('mason-update-all').setup()
+require('mason-update-all').setup({
+  -- Whether a notification should be shown when there are no updates.
+  show_no_updates_notification = true,
+})
 ```
 
 ## Commands
+
 - `:MasonUpdateAll` — update all installed Mason packages
 
 ## Events
+
 Upon completion of all updates the user event `MasonUpdateAllComplete` will be emitted. You can use it like so:
 
 ```lua
@@ -52,6 +66,7 @@ autocmd User MasonUpdateAllComplete echo 'mason-update-all has finished'
 ```
 
 ## Updating from CLI
+
 Using the provided vim command and user event, it is possible to update the Mason packages from the command line or shell scripts.
 
 ```bash
