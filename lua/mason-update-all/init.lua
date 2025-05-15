@@ -78,9 +78,7 @@ function M.update_all()
             local current_version = pkg:get_installed_version()
             if current_version ~= latest_version then
                 any_update = true
-                print_message(
-                    ('Updating %s from %s to %s'):format(pkg.name, current_version, latest_version)
-                )
+                print_message(('Updating %s from %s to %s'):format(pkg.name, current_version, latest_version))
                 pkg:install():on('closed', function()
                     running_count = running_count - 1
                     print_message(('Updated %s to %s'):format(pkg.name, latest_version))
