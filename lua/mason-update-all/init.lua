@@ -106,6 +106,7 @@ end
 
 ---@param opts MasonUpdateAllSettings
 function M.setup(opts)
+    opts = opts or {}
     M.current = vim.tbl_deep_extend('force', M.current, opts)
     vim.api.nvim_create_user_command('MasonUpdateAll', M.update_all, {})
 end
