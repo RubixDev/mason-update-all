@@ -84,13 +84,15 @@ function M.update_all()
             if current_version ~= latest_version then
                 any_update = true
                 print_message(('Updating %s from %s to %s'):format(pkg.name, current_version, latest_version))
-                pkg:install():on('closed', function()
+                local pkg_name = pkg.name
+                local pkg_latest = latest_version
+                pkg:install():on('closed', vim.schedule_wrap(function()
                     running_count = running_count - 1
-                    print_message(('Updated %s to %s'):format(pkg.name, latest_version))
+                    print_message(('Updated %s to %s'):format(pkg_name, pkg_latest))
 
                     -- Done
                     check_done(running_count, any_update, M.current.show_no_updates_notification)
-                end)
+                end))
             else
                 running_count = running_count - 1
             end
